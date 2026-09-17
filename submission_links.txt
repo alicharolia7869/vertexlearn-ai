@@ -13,7 +13,7 @@ SUBMISSION LINKS:
    https://github.com/alicharolia7869/vertexlearn-ai
 
 2. Live Demo Website URL:
-   https://vertexlearn-ai.vercel.app
+   https://vertexlearn-ai-mauve.vercel.app
 
 3. Walkthrough Screen Recording:
    Included in this archive: vertexlearn_demo_recording.webp
