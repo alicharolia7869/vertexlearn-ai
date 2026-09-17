@@ -45,15 +45,17 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({ course, isOpen, onClos
   const [activeCourseId, setActiveCourseId] = useState<string>(courseId);
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     const saved = StorageService.getChatHistory(courseId);
-    return saved.length > 0 ? saved : [defaultGreeting];
+    const valid = saved.filter((m: ChatMessage) => !m.text.includes('undefined'));
+    return valid.length > 0 ? valid : [defaultGreeting];
   });
 
   // Synchronize state during render when selected course changes (React recommended pattern)
   if (courseId !== activeCourseId) {
     setActiveCourseId(courseId);
     const saved = StorageService.getChatHistory(courseId);
-    if (saved.length > 0) {
-      setMessages(saved);
+    const valid = saved.filter((m: ChatMessage) => !m.text.includes('undefined'));
+    if (valid.length > 0) {
+      setMessages(valid);
     } else {
       setMessages([{
         id: `greet-${courseId}`,
