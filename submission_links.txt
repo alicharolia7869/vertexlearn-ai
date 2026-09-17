@@ -10,12 +10,10 @@ Project Title: VertexLearn AI — Modern Learning Platform & AI Tutor
 SUBMISSION LINKS:
 ----------------------------------------------------------------------
 1. GitHub Repository URL:
-   https://github.com/alicharolia7869/hangman-game
-   (Or your dedicated repository link: https://github.com/alicharolia7869/vertexlearn-ai)
+   https://github.com/alicharolia7869/vertexlearn-ai
 
 2. Live Demo Website URL:
    https://vertexlearn-ai.vercel.app
-   (Or your deployed Vercel/Netlify link)
 
 3. Walkthrough Screen Recording:
    Included in this archive: vertexlearn_demo_recording.webp
