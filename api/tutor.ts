@@ -1,5 +1,6 @@
 // Vercel Serverless Function: /api/tutor
 // Node.js runtime on Vercel
+declare const process: any;
 
 export const config = {
   runtime: 'nodejs'
