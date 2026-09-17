@@ -483,7 +483,8 @@ const STORAGE_KEYS = {
   QUIZ_SCORES: 'vertexlearn_quiz_scores',
   STREAK: 'vertexlearn_streak',
   CURRENT_USER_ROLE: 'vertexlearn_role',
-  AUTH_USER: 'vertexlearn_auth_user'
+  AUTH_USER: 'vertexlearn_auth_user',
+  CHAT_HISTORY: 'vertexlearn_chat_history'
 };
 
 export interface UserProfile {
@@ -623,5 +624,24 @@ export const StorageService = {
 
   setRole: (role: 'student' | 'instructor' | 'admin') => {
     localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ROLE, role);
+  },
+
+  getChatHistory: (courseId: string): any[] => {
+    try {
+      const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHAT_HISTORY) || '{}');
+      return Array.isArray(allHistory[courseId]) ? allHistory[courseId] : [];
+    } catch {
+      return [];
+    }
+  },
+
+  saveChatHistory: (courseId: string, messages: any[]) => {
+    try {
+      const allHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHAT_HISTORY) || '{}');
+      allHistory[courseId] = messages;
+      localStorage.setItem(STORAGE_KEYS.CHAT_HISTORY, JSON.stringify(allHistory));
+    } catch (e) {
+      console.error(e);
+    }
   }
 };

@@ -1,10 +1,12 @@
-import { useState } from 'react';
-import type { Course, Flashcard } from '../data/coursesData';
+import React, { useState } from 'react';
+import { StorageService, type Course, type Flashcard } from '../data/coursesData';
 import { 
   Bot, 
   X, 
   Send, 
-  Sparkles
+  Sparkles,
+  RotateCcw,
+  AlertTriangle
 } from 'lucide-react';
 
 interface AITutorChatProps {
@@ -17,29 +19,59 @@ interface ChatMessage {
   id: string;
   sender: 'user' | 'ai';
   text: string;
-  timestamp?: string;
+  source?: 'gemini-live' | 'openai-live' | 'curriculum-knowledge' | 'local-dev-api' | 'system';
+  notice?: string;
   flashcards?: Flashcard[];
+  isError?: boolean;
 }
 
 export const AITutorChat: React.FC<AITutorChatProps> = ({ course, isOpen, onClose }) => {
   const [difficulty, setDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Beginner');
   const [inputQuery, setInputQuery] = useState<string>('');
   const [isTyping, setIsTyping] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [flippedCardIndex, setFlippedCardIndex] = useState<number | null>(null);
 
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 'msg-1',
-      sender: 'ai',
-      text: `Hello Ali! 👋 I am your dedicated **AI Tutor** for *${course.title}*. I'm set to **${difficulty}** mode. Ask me anything about the lectures, or use the quick action prompts below!`
+  const courseTitle = course?.title || 'Modern Engineering';
+  const courseId = course?.id || 'default-course';
+
+  const defaultGreeting: ChatMessage = {
+    id: `greet-${courseId}`,
+    sender: 'ai',
+    text: `Hello Ali! 👋 I am your dedicated **AI Tutor** for *${courseTitle}*. Ask me anything about the lectures, or use the quick action prompts below!`,
+    source: 'system'
+  };
+
+  const [activeCourseId, setActiveCourseId] = useState<string>(courseId);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const saved = StorageService.getChatHistory(courseId);
+    return saved.length > 0 ? saved : [defaultGreeting];
+  });
+
+  // Synchronize state during render when selected course changes (React recommended pattern)
+  if (courseId !== activeCourseId) {
+    setActiveCourseId(courseId);
+    const saved = StorageService.getChatHistory(courseId);
+    if (saved.length > 0) {
+      setMessages(saved);
+    } else {
+      setMessages([{
+        id: `greet-${courseId}`,
+        sender: 'ai',
+        text: `Hello Ali! 👋 I am your dedicated **AI Tutor** for *${courseTitle}*. Ask me anything about the lectures, or use the quick action prompts below!`,
+        source: 'system'
+      }]);
     }
-  ]);
+    setErrorMessage(null);
+  }
 
   if (!isOpen) return null;
 
-  const handleSendMessage = (textToSend?: string) => {
+  const handleSendMessage = async (textToSend?: string) => {
     const query = textToSend || inputQuery;
     if (!query.trim()) return;
+
+    setErrorMessage(null);
 
     const userMsg: ChatMessage = {
       id: `msg-${Date.now()}`,
@@ -47,38 +79,81 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({ course, isOpen, onClos
       text: query
     };
 
-    setMessages((prev) => [...prev, userMsg]);
+    const newHistory = [...messages, userMsg];
+    setMessages(newHistory);
+    StorageService.saveChatHistory(courseId, newHistory);
+
     if (!textToSend) setInputQuery('');
     setIsTyping(true);
 
-    // Simulate AI response based on query and difficulty
-    setTimeout(() => {
-      let responseText = '';
-      let cards: Flashcard[] | undefined = undefined;
+    try {
+      const activeLessonTitle = course?.lessons?.[0]?.title || 'Core Curriculum';
 
-      const lower = query.toLowerCase();
+      const response = await fetch('/api/tutor', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          courseTitle,
+          lessonTitle: activeLessonTitle,
+          query,
+          difficulty,
+          history: newHistory.slice(-4).map((m) => ({ sender: m.sender, text: m.text }))
+        })
+      });
 
-      if (lower.includes('summarize') || lower.includes('summary')) {
-        responseText = `📌 **Lecture Summary (${difficulty} Level)**:\n\nIn this lecture of *${course.title}*, we covered core structural concepts. At **[01:15]**, we explored the component breakdown and state boundaries. Later at **[04:30]**, we saw how diffing algorithms optimize real-world re-renders. Key takeaway: Always colocate state where it is directly needed!`;
-      } else if (lower.includes('flashcard') || lower.includes('cards')) {
-        responseText = `🗂️ I've generated interactive flashcards based on the current lesson topics. Click on any card below to flip and test your knowledge!`;
-        cards = course.flashcards;
-      } else if (lower.includes('simple terms') || lower.includes('explain')) {
-        responseText = `💡 **In Simple Everyday Terms**:\n\nImagine you are building a LEGO tower. Each component is a specific colored brick. Instead of knocking the whole tower down to change one brick (which is slow), modern frameworks look at a blueprint first (**Virtual DOM at [02:00]**) and swap only that single piece!`;
-      } else {
-        responseText = `Great question regarding **${course.title}**! In ${difficulty} level: The key principle is separating concerns between presentation and business state. Refer to lesson timestamp **[03:45]** where the instructor demonstrates the implementation pattern step-by-step.`;
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Failed to receive AI response`);
       }
+
+      const data = await response.json();
 
       const aiMsg: ChatMessage = {
         id: `ai-${Date.now()}`,
         sender: 'ai',
-        text: responseText,
-        flashcards: cards
+        text: data.response || 'I processed your query successfully.',
+        source: data.source,
+        notice: data.notice,
+        flashcards: data.flashcards || (query.toLowerCase().includes('flashcard') ? course?.flashcards : undefined)
       };
 
-      setMessages((prev) => [...prev, aiMsg]);
+      const updatedHistory = [...newHistory, aiMsg];
+      setMessages(updatedHistory);
+      StorageService.saveChatHistory(courseId, updatedHistory);
+    } catch (err: any) {
+      console.error('AI Tutor API Request failed:', err);
+      setErrorMessage(err?.message || 'Network error communicating with AI server.');
+
+      // Provide resilient fallback response so student is never stranded
+      const fallbackMsg: ChatMessage = {
+        id: `ai-err-${Date.now()}`,
+        sender: 'ai',
+        text: `⚠️ **Connection Notice**: I was unable to connect to the live AI API (${err?.message || 'Offline'}). Here is the curriculum reference for **${courseTitle}**:\n\n` +
+          `• In **${difficulty}** mode, review lesson timestamp **[02:15]** for core implementation steps.\n` +
+          `• Try asking for a **Lecture Summary** or **Flashcards**!`,
+        source: 'curriculum-knowledge',
+        isError: true,
+        flashcards: course?.flashcards
+      };
+
+      const updatedHistory = [...newHistory, fallbackMsg];
+      setMessages(updatedHistory);
+      StorageService.saveChatHistory(courseId, updatedHistory);
+    } finally {
       setIsTyping(false);
-    }, 900);
+    }
+  };
+
+  const handleClearHistory = () => {
+    const reset = [{
+      id: `greet-${courseId}-${Date.now()}`,
+      sender: 'ai' as const,
+      text: `Chat history cleared! 👋 How can I help you master *${courseTitle}* today?`,
+      source: 'system' as const
+    }];
+    setMessages(reset);
+    StorageService.saveChatHistory(courseId, reset);
   };
 
   return (
@@ -122,21 +197,31 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({ course, isOpen, onClos
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <h3 style={{ fontSize: 16, margin: 0 }}>AI Tutor Chat</h3>
-              <span className="badge badge-purple" style={{ fontSize: 9, padding: '1px 6px' }}>ONLINE</span>
+              <span className="badge badge-purple" style={{ fontSize: 9, padding: '1px 6px' }}>ONLINE API</span>
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-              Assisting with: {course.title.slice(0, 24)}...
+              Assisting with: {courseTitle.slice(0, 24)}...
             </div>
           </div>
         </div>
 
-        <button 
-          onClick={onClose}
-          className="btn btn-icon btn-secondary"
-          style={{ width: 32, height: 32 }}
-        >
-          <X size={16} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button
+            onClick={handleClearHistory}
+            className="btn btn-icon btn-secondary"
+            title="Reset Chat History"
+            style={{ width: 32, height: 32 }}
+          >
+            <RotateCcw size={14} />
+          </button>
+          <button 
+            onClick={onClose}
+            className="btn btn-icon btn-secondary"
+            style={{ width: 32, height: 32 }}
+          >
+            <X size={16} />
+          </button>
+        </div>
       </div>
 
       {/* Difficulty Toggle */}
@@ -199,14 +284,14 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({ course, isOpen, onClos
                   width: 28,
                   height: 28,
                   borderRadius: 8,
-                  background: 'var(--accent-gradient)',
+                  background: m.isError ? '#ef4444' : 'var(--accent-gradient)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   flexShrink: 0,
                   marginTop: 2
                 }}>
-                  <Sparkles size={14} color="#fff" />
+                  {m.isError ? <AlertTriangle size={14} color="#fff" /> : <Sparkles size={14} color="#fff" />}
                 </div>
               )}
 
@@ -224,14 +309,30 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({ course, isOpen, onClos
               }}>
                 {m.text}
 
+                {/* Source Badge if present */}
+                {isAi && m.source && m.source !== 'system' && (
+                  <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{
+                      fontSize: 9,
+                      padding: '2px 6px',
+                      borderRadius: 4,
+                      background: 'rgba(59, 130, 246, 0.2)',
+                      color: '#93c5fd',
+                      fontWeight: 600
+                    }}>
+                      ⚡ {m.source.toUpperCase()}
+                    </span>
+                  </div>
+                )}
+
                 {/* Flashcards attached */}
-                {m.flashcards && (
+                {m.flashcards && m.flashcards.length > 0 && (
                   <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {m.flashcards.map((card, cIdx) => {
                       const isFlipped = flippedCardIndex === cIdx;
                       return (
                         <div
-                          key={card.id}
+                          key={card.id || cIdx}
                           onClick={() => setFlippedCardIndex(isFlipped ? null : cIdx)}
                           style={{
                             background: isFlipped ? 'rgba(139, 92, 246, 0.2)' : 'rgba(15, 23, 42, 0.7)',
@@ -262,7 +363,20 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({ course, isOpen, onClos
         {isTyping && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--text-muted)', fontSize: 12 }}>
             <Sparkles size={14} className="pulse-glow" color="#8b5cf6" />
-            AI Tutor is typing response...
+            AI Tutor is querying knowledge base...
+          </div>
+        )}
+
+        {errorMessage && (
+          <div style={{
+            fontSize: 11,
+            color: '#f87171',
+            background: 'rgba(239, 68, 68, 0.1)',
+            padding: '6px 10px',
+            borderRadius: 6,
+            border: '1px solid rgba(239, 68, 68, 0.3)'
+          }}>
+            Notice: {errorMessage}
           </div>
         )}
       </div>
@@ -318,6 +432,7 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({ course, isOpen, onClos
         />
         <button
           onClick={() => handleSendMessage()}
+          disabled={isTyping}
           className="btn btn-primary btn-icon"
           style={{ width: 42, height: 42, flexShrink: 0 }}
         >

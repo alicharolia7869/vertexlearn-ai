@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { StorageService, type Course, type UserProfile, DEFAULT_USER } from './data/coursesData';
+import { useState } from 'react';
+import { StorageService, type Course, type UserProfile } from './data/coursesData';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './components/Dashboard';
 import { VideoPlayer } from './components/VideoPlayer';
@@ -9,32 +9,18 @@ import { InstructorAdminView } from './components/InstructorAdminView';
 import { LoginModal } from './components/LoginModal';
 
 export function App() {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [enrolledIds, setEnrolledIds] = useState<string[]>([]);
+  // Synchronous lazy state initialization from LocalStorage
+  const [courses, setCourses] = useState<Course[]>(() => StorageService.getCourses());
+  const [enrolledIds, setEnrolledIds] = useState<string[]>(() => StorageService.getEnrolledCourseIds());
   const [currentView, setCurrentView] = useState<'catalog' | 'learning' | 'admin' | 'instructor'>('catalog');
-  const [userRole, setUserRole] = useState<'student' | 'instructor' | 'admin'>('student');
-  const [currentUser, setCurrentUser] = useState<UserProfile>(DEFAULT_USER);
+  const [userRole, setUserRole] = useState<'student' | 'instructor' | 'admin'>(() => StorageService.getRole());
+  const [currentUser, setCurrentUser] = useState<UserProfile>(() => StorageService.getUser());
   const [isLoginOpen, setIsLoginOpen] = useState<boolean>(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [activeQuizCourse, setActiveQuizCourse] = useState<Course | null>(null);
   const [isAITutorOpen, setIsAITutorOpen] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [streak, setStreak] = useState<number>(5);
-
-  // Initialize data from LocalStorage
-  useEffect(() => {
-    const loadedCourses = StorageService.getCourses();
-    const loadedEnrolled = StorageService.getEnrolledCourseIds();
-    const loadedStreak = StorageService.getStreak();
-    const loadedRole = StorageService.getRole();
-    const loadedUser = StorageService.getUser();
-
-    setCourses(loadedCourses);
-    setEnrolledIds(loadedEnrolled);
-    setStreak(loadedStreak);
-    setUserRole(loadedRole);
-    setCurrentUser(loadedUser);
-  }, []);
+  const [streak] = useState<number>(() => StorageService.getStreak());
 
   const handleLogin = (user: UserProfile) => {
     setCurrentUser(user);
@@ -56,7 +42,7 @@ export function App() {
 
   const handleEnroll = (courseId: string) => {
     StorageService.enrollCourse(courseId);
-    setEnrolledIds((prev) => [...prev, courseId]);
+    setEnrolledIds((prev) => (prev.includes(courseId) ? prev : [...prev, courseId]));
     const found = courses.find((c) => c.id === courseId);
     if (found) {
       setSelectedCourse(found);
@@ -128,6 +114,7 @@ export function App() {
             }}
             searchQuery={searchQuery}
             streak={streak}
+            showOnlyEnrolled={currentView === 'learning'}
           />
         )}
       </main>

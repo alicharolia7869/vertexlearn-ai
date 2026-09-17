@@ -23,6 +23,7 @@ interface DashboardProps {
   onSwitchToAdmin?: () => void;
   searchQuery: string;
   streak: number;
+  showOnlyEnrolled?: boolean;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -34,7 +35,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onRestoreCourses,
   onSwitchToAdmin,
   searchQuery,
-  streak
+  streak,
+  showOnlyEnrolled = false
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
@@ -45,7 +47,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
     const matchesSearch = c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           c.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           c.instructor.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch && c.status === 'approved';
+    const matchesEnrolled = !showOnlyEnrolled || enrolledIds.includes(c.id);
+    return matchesCategory && matchesSearch && matchesEnrolled && c.status === 'approved';
   });
 
   const enrolledCourses = courses.filter((c) => enrolledIds.includes(c.id));

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { StorageService, type Course, type Lesson } from '../data/coursesData';
 import { 
   ArrowLeft, 
@@ -31,15 +31,18 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   const currentLesson: Lesson = course.lessons[activeLessonIndex] || course.lessons[0];
   const [playerMode, setPlayerMode] = useState<'youtube' | 'html5'>('youtube');
 
-  const [notes, setNotes] = useState<string>('');
+  const [notes, setNotes] = useState<string>(() => StorageService.getNotes(course.id, (course.lessons[0] || {}).id));
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving'>('saved');
   const [completedLessons, setCompletedLessons] = useState<string[]>(['lesson-1']);
 
-  // Load existing notes for current lesson
-  useEffect(() => {
-    const saved = StorageService.getNotes(course.id, currentLesson.id);
-    setNotes(saved);
-  }, [course.id, currentLesson.id]);
+  const handleSelectLesson = (idx: number) => {
+    setActiveLessonIndex(idx);
+    const targetLesson = course.lessons[idx] || course.lessons[0];
+    if (targetLesson) {
+      setNotes(StorageService.getNotes(course.id, targetLesson.id));
+      setSaveStatus('saved');
+    }
+  };
 
   // Handle note typing with auto-save debounce
   const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -345,7 +348,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
               return (
                 <div
                   key={lesson.id}
-                  onClick={() => setActiveLessonIndex(idx)}
+                  onClick={() => handleSelectLesson(idx)}
                   style={{
                     padding: '12px 14px',
                     borderRadius: 10,
