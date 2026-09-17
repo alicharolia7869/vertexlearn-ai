@@ -1,0 +1,31 @@
+======================================================================
+VERTEXLEARN AI — INTERNMO FRONT-END INTERNSHIP SUBMISSION
+======================================================================
+
+Intern Name: Ali Charolia
+Track: Front-End Internship Track
+Project Title: VertexLearn AI — Modern Learning Platform & AI Tutor
+
+----------------------------------------------------------------------
+SUBMISSION LINKS:
+----------------------------------------------------------------------
+1. GitHub Repository URL:
+   https://github.com/alicharolia7869/hangman-game
+   (Or your dedicated repository link: https://github.com/alicharolia7869/vertexlearn-ai)
+
+2. Live Demo Website URL:
+   https://vertexlearn-ai.vercel.app
+   (Or your deployed Vercel/Netlify link)
+
+3. Walkthrough Screen Recording:
+   Included in this archive: vertexlearn_demo_recording.webp
+   Shows: Catalog -> Video Player & Notes -> AI Tutor Chat -> Taking Quiz -> Downloading Diploma -> Instructor/Admin Workflow
+
+----------------------------------------------------------------------
+HOW TO RUN LOCALLY:
+----------------------------------------------------------------------
+1. cd vertexlearn-ai
+2. npm install
+3. npm run dev
+4. Open http://localhost:5173
+======================================================================
