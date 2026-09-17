@@ -260,7 +260,8 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({ course, isOpen, onClos
 
       {/* Messages List */}
       <div style={{
-        flex: 1,
+        flex: '1 1 0%',
+        minHeight: 0,
         overflowY: 'auto',
         padding: '16px 20px',
         display: 'flex',
@@ -390,7 +391,8 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({ course, isOpen, onClos
         background: 'rgba(9, 13, 22, 0.4)',
         display: 'flex',
         gap: 6,
-        overflowX: 'auto'
+        overflowX: 'auto',
+        flexShrink: 0
       }}>
         <button
           onClick={() => handleSendMessage('Summarize this lesson')}
@@ -421,7 +423,8 @@ export const AITutorChat: React.FC<AITutorChatProps> = ({ course, isOpen, onClos
         borderTop: '1px solid var(--border-subtle)',
         display: 'flex',
         gap: 8,
-        background: 'rgba(9, 13, 22, 0.9)'
+        background: 'rgba(9, 13, 22, 0.9)',
+        flexShrink: 0
       }}>
         <input
           type="text"

@@ -546,6 +546,18 @@ export const StorageService = {
     localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ROLE, user.role);
   },
 
+  logout: (): UserProfile => {
+    const guestUser: UserProfile = {
+      name: 'Guest Learner',
+      email: 'guest@vertexlearn.ai',
+      role: 'student',
+      title: 'Guest Student Account'
+    };
+    localStorage.setItem(STORAGE_KEYS.AUTH_USER, JSON.stringify(guestUser));
+    localStorage.setItem(STORAGE_KEYS.CURRENT_USER_ROLE, 'student');
+    return guestUser;
+  },
+
   saveCourses: (courses: Course[]) => {
     localStorage.setItem(STORAGE_KEYS.COURSES, JSON.stringify(courses));
   },
