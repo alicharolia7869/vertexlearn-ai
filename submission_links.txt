@@ -17,9 +17,9 @@ https://vertexlearn-ai-mauve.vercel.app/
 GITHUB REPOSITORY URL:
 https://github.com/alicharolia7869/vertexlearn-ai
 
-2-MINUTE DEMO VIDEO & PRESENTATION PLAYER:
-- File in Submission: 2_Minute_Demo_Video_Player.html
-- High-Definition Video File: VertexLearn_AI_Demo_Video.webp
+2-MINUTE SCREEN RECORDING & DEMO WALKTHROUGH:
+- Primary MP4 Video: How to Use Vertexlearn-AI.mp4
+- High-Definition Demo File: VertexLearn_AI_Demo_Video.webp
 - Video Stages Covered:
   1. Course Catalog & Roadmaps (0:00 - 0:25)
   2. Classroom Video Player & Interactive Notes (0:25 - 0:50)
@@ -36,10 +36,12 @@ PROJECT HIGHLIGHTS & ARCHITECTURAL SUMMARY:
 • Role-Based Access Control (RBAC): Student Dashboard, Instructor Studio & Course Builder, and Admin Moderation Portal.
 • Career Roadmaps for Front-End Engineering, AI Systems, and UI/UX Architecture.
 • Technical eBooks & Study Guides library with in-app table of contents reader and downloadable PDF spec.
+• Standard CSS Design System: Full dark mode, glassmorphism, responsive layout, and standard cross-browser compatibility (background-clip & webkit prefixes).
+• Production Build Status: 100% clean build passing with zero TypeScript errors or linter warnings.
 
 SUBMISSION PACKAGE CHECKLIST:
 [✓] Clean GitHub repository with detailed README.md and setup instructions.
-[✓] Live Production Website deployed and aliased on Vercel.
-[✓] 2-Minute Screen Recording demonstration covering all 5 core flows.
+[✓] Live Production Website deployed and running on Vercel.
+[✓] 2-Minute Screen Recording demonstration covering all 5 core flows (How to Use Vertexlearn-AI.mp4).
 [✓] Complete project source code ZIP archive: VertexLearn_AI_Ali_Charolia.zip.
 ================================================================================
