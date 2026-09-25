@@ -1,29 +1,45 @@
-======================================================================
-VERTEXLEARN AI — INTERNMO FRONT-END INTERNSHIP SUBMISSION
-======================================================================
+================================================================================
+VERTEXLEARN AI — INTERNMO FINAL PROJECT SUBMISSION DETAILS
+================================================================================
 
-Intern Name: Ali Charolia
-Track: Front-End Internship Track
-Project Title: VertexLearn AI — Modern Learning Platform & AI Tutor
+STUDENT / INTERN NAME:
+Ali Charolia
 
-----------------------------------------------------------------------
-SUBMISSION LINKS:
-----------------------------------------------------------------------
-1. GitHub Repository URL:
-   https://github.com/alicharolia7869/vertexlearn-ai
+PROJECT TITLE:
+VertexLearn AI — Intelligent Interactive Learning Management System & AI Tutor
 
-2. Live Demo Website URL:
-   https://vertexlearn-ai-mauve.vercel.app
+TRACK:
+Front-End Engineering Track
 
-3. Walkthrough Screen Recording:
-   Included in this archive: vertexlearn_demo_recording.webp
-   Shows: Catalog -> Video Player & Notes -> AI Tutor Chat -> Taking Quiz -> Downloading Diploma -> Instructor/Admin Workflow
+LIVE PRODUCTION WEBSITE URL:
+https://vertexlearn-ai-mauve.vercel.app/
 
-----------------------------------------------------------------------
-HOW TO RUN LOCALLY:
-----------------------------------------------------------------------
-1. cd vertexlearn-ai
-2. npm install
-3. npm run dev
-4. Open http://localhost:5173
-======================================================================
+GITHUB REPOSITORY URL:
+https://github.com/alicharolia7869/vertexlearn-ai
+
+2-MINUTE DEMO VIDEO & PRESENTATION PLAYER:
+- File in Submission: 2_Minute_Demo_Video_Player.html
+- High-Definition Video File: VertexLearn_AI_Demo_Video.webp
+- Video Stages Covered:
+  1. Course Catalog & Roadmaps (0:00 - 0:25)
+  2. Classroom Video Player & Interactive Notes (0:25 - 0:50)
+  3. Live Serverless AI Tutor & Interactive Flashcards (0:50 - 1:15)
+  4. React 19 Quiz Assessment with 100% Score (1:15 - 1:40)
+  5. Official Verifiable PDF Diploma Generation (1:40 - 2:00)
+
+PROJECT HIGHLIGHTS & ARCHITECTURAL SUMMARY:
+• Modern Single-Page App (SPA) built with React 19, TypeScript, and Vite.
+• Live Production Vercel Serverless Function (/api/tutor) for the AI Tutor with zero external backend dependencies.
+• 100% Client-Side State Persistence via LocalStorage (enrollments, playlist progress, lecture notes, chat history, quiz scores, custom created courses).
+• Dual Player Modes: YouTube Streaming and an offline HTML5 Classroom Player.
+• Built-in Quiz engine with randomized evaluation and instant certificate generator (jspdf + html2canvas).
+• Role-Based Access Control (RBAC): Student Dashboard, Instructor Studio & Course Builder, and Admin Moderation Portal.
+• Career Roadmaps for Front-End Engineering, AI Systems, and UI/UX Architecture.
+• Technical eBooks & Study Guides library with in-app table of contents reader and downloadable PDF spec.
+
+SUBMISSION PACKAGE CHECKLIST:
+[✓] Clean GitHub repository with detailed README.md and setup instructions.
+[✓] Live Production Website deployed and aliased on Vercel.
+[✓] 2-Minute Screen Recording demonstration covering all 5 core flows.
+[✓] Complete project source code ZIP archive: VertexLearn_AI_Ali_Charolia.zip.
+================================================================================
